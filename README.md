@@ -1,5 +1,7 @@
 # TT
 
+![](https://tokei.rs/b1/github/ktmlm/ttstack)
+
 **T**o be correct, **T**o be reliable.
 
 A lightweight private cloud solution for SME scenarios.
