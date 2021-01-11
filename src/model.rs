@@ -1,11 +1,13 @@
 //!
-//! # Infrastructure-related model design
+//! # Design Model
+//!
+//! Design of the core infrastructure.
 //!
 
 use crate::err::*;
 use ruc::{err::*, *};
 use std::{
-    collections::HashMap,
+    collections::{HashMap, HashSet},
     fmt::Debug,
     fs, mem,
     path::{Path, PathBuf},
@@ -16,10 +18,18 @@ use std::{
 /// e.g. [EnvId](self::Env::id), [VmId](self::Vm::id) ...
 pub type Id = u64;
 
+/// ID alias for ENV.
+pub type EnvId = Id;
+
+/// ID alias for VM.
+pub type VmId = Id;
+
 /// Use `u16` to express a socket port.
 pub type SockPort = u16;
+
 /// Service ports within the host machine.
 pub type PubSockPort = SockPort;
+
 /// Service ports within the VM.
 pub type InnerSockPort = SockPort;
 
@@ -29,14 +39,16 @@ pub type NetAddr = String;
 
 /// Inner IP(v4) address of VM.
 pub type IpAddr = [u8; 4];
+
 /// MAC address of VM.
 pub type MacAddr = [u8; 6];
 
 /// Use `u32` as the uint of supported vm-engine-features.
 pub type VmEngineFeat = u32;
 
-/// Core unit of TT.
-#[derive(Debug)]
+/// The base unit of TT,
+/// stands for a complete workspace for client.
+#[derive(Debug, Default)]
 pub struct Env {
     /// UUID of the ENV
     pub id: Id,
@@ -49,13 +61,13 @@ pub struct Env {
     /// permit use to change it .
     pub end_timestamp: u64,
     /// All [VmId](self::Vm::id)s under this ENV.
-    pub vm_set: Vec<Id>,
+    pub vm_set: HashSet<Id>,
     /// Info about the state of ENV.
     pub state: EnvState,
 }
 
 /// Info about the state of ENV.
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct EnvState {
     /// Whether this ENV is stopped.
     pub is_stopped: bool,
@@ -78,8 +90,6 @@ pub struct Vm {
     pub name: Option<String>,
     /// Created by which engine.
     pub engine: Arc<dyn VmEngine>,
-    /// Which kind of network is prefer.
-    pub net_kind: NetKind,
     /// Template of `runtime_image`, that is,
     /// the runtime image is created based on the template.
     pub template: Arc<VmTemplate>,
@@ -91,6 +101,8 @@ pub struct Vm {
     ///
     /// E.g. zroot/tt/[VmId](self::Vm::id)
     pub runtime_image: String,
+    /// Network kind of this VM.
+    pub net_kind: NetKind,
     /// SnapshotName => Snapshot
     pub snapshots: HashMap<String, Snapshot>,
     /// The latest cached config-file.
@@ -118,24 +130,33 @@ pub enum NetKind {
     Nat,
 }
 
-/// Infomations about a template of VM.
-#[derive(Debug)]
+impl Default for NetKind {
+    fn default() -> Self {
+        Self::Nat
+    }
+}
+
+/// Infomations about the template of VM,
+/// or in other word, the base image of VM.
+#[derive(Debug, Default)]
 pub struct VmTemplate {
     /// Globally unique name,
-    /// e.g. "github.com/ktmlm/alpine"
+    /// e.g. "github.com/ktmlm/alpine".
     pub name: String,
-    /// Description of the template image, that is,
-    /// the low-level infrastructure of the runtime image.
-    pub memo: Option<String>,
     /// Path which pointing to the template.
     /// May not be a regular file path, such as `ZFS`.
     pub path: String,
-    /// Engines can use this template.
+    /// Description of the template image, that is,
+    /// the low-level infrastructure of the runtime image.
+    pub memo: Option<String>,
+    /// Engines(name) that can use this template.
     pub compatible_engines: Vec<String>,
+    /// Features that may be used by some compatible engines.
+    pub features: Vec<String>,
 }
 
 /// Info about the state of VM.
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct VmState {
     /// Whether has been stopped.
     pub during_stop: bool,
@@ -150,7 +171,7 @@ pub struct VmState {
 }
 
 /// Info about the resource of VM.
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct VmResource {
     /// CPU number
     pub cpu_num: u16,
@@ -174,7 +195,7 @@ pub struct VmResource {
 }
 
 /// Snapshot management.
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct Snapshot {
     /// The name of snapshot.
     pub name: String,
@@ -207,7 +228,7 @@ impl Snapshot {
 
 /// Common methods for each engine,
 /// such as 'Firecracker', 'Qemu', 'Docker' ...
-pub trait VmEngine: Debug + Network + Storage {
+pub trait VmEngine: Send + Sync + Debug + Network + Storage {
     /// Will be called once during system starting.
     fn init(&self) -> Result<()>;
 
@@ -323,7 +344,8 @@ pub trait VmEngine: Debug + Network + Storage {
     }
 }
 
-/// This trait describes how to manage the 'firewall rule'.
+/// This trait describes how to manage the network,
+/// such as 'firewall rule' in the [NAT](self::NetKind::Nat) mode.
 pub trait Network {
     /// Set network for the VM.
     fn set_net(&self, vm: &mut Vm) -> Result<()>;

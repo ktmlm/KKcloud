@@ -1,10 +1,10 @@
 # TT
 
-tt, To be correct, To be reliable.
+**T**o be correct, **T**o be reliable.
 
 A lightweight private cloud solution for SME scenarios.
 
-## Doc
+## Documents
 
-- visit on [**crates.io**](https://docs.rs/ttstack/0.0.2/ttstack/index.html)
 - visit on **localhost** (`make doc`)
+- visit on [**crates.io**](https://docs.rs/ttstack/0.0.3/ttstack/index.html), may not be up to date
