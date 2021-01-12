@@ -24,7 +24,7 @@ cleanall: clean
 
 doc:
 	@ cargo doc --workspace
-	@ cd src/framework && cargo doc --open
 	@ cd src/engine && cargo doc --open
+	@ cd src/framework && cargo doc --open
 	@ cd src/server && cargo doc --open
 	@ cd src/client && cargo doc --open
