@@ -2,7 +2,7 @@
 
 ![](https://tokei.rs/b1/github/ktmlm/KKcloud)
 
-**K**eep correct, **K**eep reliable.
+**K**eep it correct, **K**eep it reliable.
 
 A lightweight private cloud solution for SME scenarios.
 

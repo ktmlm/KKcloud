@@ -1,7 +1,7 @@
 //!
 //! # KK
 //!
-//! **K**eep correct, **K**eep reliable.
+//! **K**eep it correct, **K**eep it reliable.
 //!
 //! Lightweight private-cloud solution for SME scenarios.
 //!
