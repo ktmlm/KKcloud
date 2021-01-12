@@ -47,4 +47,4 @@ for file in $(find .. -type f \
     perl -p -i -e 's/ +$//g' $file
 done
 
-cargo +nightly fmt
+cargo fmt --all

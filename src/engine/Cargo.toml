@@ -1,0 +1,16 @@
+[package]
+name = "tt-engine"
+version = "0.1.0"
+
+edition = "2018"
+authors = ["FanHui <kt71@qq.com>", "FanHui <fanhui.x@gmail.com>"]
+description = "To be correct, To be reliable! A lightweight private cloud solution for SME scenarios."
+license = "MIT OR Apache-2.0"
+keywords = ["firecracker", "qemu", "docker", "openstack", "k8s"]
+categories = ["command-line-utilities"]
+homepage = "https://gitee.com/kt10/ttstack"
+
+[dependencies]
+ruc = { git = "https://gitee.com/kt10/ruc", version = "0.4", branch = "master" }
+
+[features]

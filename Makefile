@@ -16,10 +16,10 @@ fmt:
 	@ ./tools/fmt.sh
 
 clean:
-	@ git clean -fdx
 	@ find . -type f -name "Cargo.lock" | xargs rm -f
 
 cleanall: clean
+	@ git clean -fdx
 	@ cargo clean
 
 doc:

@@ -1,20 +1,20 @@
-[package]
-name = "ttstack"
-version = "0.0.3"
+[workspace]
+members = [
+    "src/engine",
+    "src/framework",
+    "src/server",
+]
 
-edition = "2018"
-authors = ["FanHui <kt71@qq.com>", "FanHui <fanhui.x@gmail.com>"]
-description = "To be correct, To be reliable! A lightweight private cloud solution for SME scenarios."
-license = "MIT OR Apache-2.0"
-keywords = ["firecracker", "qemu", "docker", "openstack", "k8s"]
-categories = ["command-line-utilities"]
-homepage = "https://gitee.com/kt10/ttstack"
+[profile.dev]
+overflow-checks = true
+panic = "unwind"
 
-[dependencies]
-ruc = { git = "https://gitee.com/kt10/ruc", version = "0.4", branch = "master" }
+[profile.release]
+lto = true
+incremental = false
+overflow-checks = false
+panic = "unwind"
 
-lazy_static = "1.4.0"
-serde = { version = "1.0.118", features = ["derive"] }
-parking_lot = "0.11.1"
-
-[features]
+[profile.bench]
+codegen-units = 1
+overflow-checks = false
