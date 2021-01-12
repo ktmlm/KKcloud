@@ -44,7 +44,7 @@ pub type IpAddr = [u8; 4];
 pub type MacAddr = [u8; 6];
 
 /// Use `u32` as the uint of supported vm-engine-features.
-pub type VmEngineFeat = u32;
+pub type VmFeature = u32;
 
 /// The base unit of KK,
 /// stands for a complete workspace for client.
@@ -149,10 +149,10 @@ pub struct VmTemplate {
     /// Description of the template image, that is,
     /// the low-level infrastructure of the runtime image.
     pub memo: Option<String>,
-    /// Engines(name) that can use this template.
-    pub compatible_engines: Vec<String>,
-    /// Features that may be used by some compatible engines.
-    pub features: Vec<String>,
+    /// Engines that can use this template, e.g. 'Qemu'.
+    pub compatible_engines: HashSet<String>,
+    /// Features that may be used by engines.
+    pub features: HashSet<VmFeature>,
 }
 
 /// Info about the state of VM.
@@ -167,7 +167,7 @@ pub struct VmState {
     /// if NOT, `machine-id` of the VM may be empty.
     pub rand_uuid: bool,
     /// VM can NOT connect to the addrs in this list.
-    pub net_blacklist: Vec<IpAddr>,
+    pub net_blacklist: HashSet<IpAddr>,
 }
 
 /// Info about the resource of VM.
@@ -230,10 +230,15 @@ impl Snapshot {
 /// such as 'Firecracker', 'Qemu', 'Docker' ...
 pub trait VmEngine: Send + Sync + Debug + Network + Storage {
     /// Will be called once during system starting.
-    fn init(&self) -> Result<()>;
+    fn init() -> Result<Arc<dyn VmEngine>>
+    where
+        Self: Sized;
+
+    /// Get the name of engine.
+    fn name(&self) -> &str;
 
     /// Check if all features the client wanted can be supported.
-    fn check_feat(&self, feat_wanted: &[VmEngineFeat]) -> Result<bool>;
+    fn check_feat(&self, feat_wanted: &[VmFeature]) -> Result<bool>;
 
     /// Create the VM instance, and update necessary data of the `Vm`.
     fn create_vm(&self, vm: &mut Vm) -> Result<()> {

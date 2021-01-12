@@ -8,6 +8,6 @@
 
 #![warn(missing_docs, unused_import_braces, unused_extern_crates)]
 
+pub mod controller;
 pub mod err;
-pub mod master;
 pub mod model;
