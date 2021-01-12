@@ -2,6 +2,7 @@
 members = [
     "src/engine",
     "src/framework",
+    "src/client",
     "src/server",
 ]
 
