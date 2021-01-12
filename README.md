@@ -1,12 +1,12 @@
-# TT
+# KKcloud
 
-![](https://tokei.rs/b1/github/ktmlm/ttstack)
+![](https://tokei.rs/b1/github/ktmlm/KKcloud)
 
-**T**o be correct, **T**o be reliable.
+**K**eep correct, **K**eep reliable.
 
 A lightweight private cloud solution for SME scenarios.
 
 ## Documents
 
 - visit on **localhost** (`make doc`)
-- visit on [**crates.io**](https://docs.rs/ttstack/0.0.3/ttstack/index.html), may not be up to date
+- visit on [**crates.io**](https://docs.rs/kkcloud/0.0.3/kkcloud/index.html), may not be up to date

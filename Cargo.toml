@@ -4,6 +4,7 @@ members = [
     "src/framework",
     "src/client",
     "src/server",
+    "src/kkcloud",
 ]
 
 [profile.dev]

@@ -13,7 +13,7 @@ use std::{
 };
 
 lazy_static! {
-    /// Global entrypoint of the **TT** service.
+    /// Global entrypoint.
     pub static ref SERV: Arc<Service> = Arc::new(Service::default());
 }
 

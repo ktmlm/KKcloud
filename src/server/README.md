@@ -1,3 +1,3 @@
 # Server
 
-An official implementation of `TT-server` based on the `TT-framework`.
+An official implementation of `KK-server` based on the `KK-framework`.

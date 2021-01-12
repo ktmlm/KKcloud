@@ -1,6 +1,6 @@
 [package]
-name = "kkcloud-client"
-version = "0.1.0"
+name = "kkcloud"
+version = "0.0.3"
 
 edition = "2018"
 authors = ["FanHui <kt71@qq.com>", "FanHui <fanhui.x@gmail.com>"]
@@ -11,6 +11,15 @@ categories = ["command-line-utilities"]
 homepage = "https://gitee.com/kt10/kkcloud"
 
 [dependencies]
-ruc = { git = "https://gitee.com/kt10/ruc", version = "0.4", branch = "master" }
+kkcloud-client = "0"
+kkcloud-server = "0"
 
 [features]
+
+[[bin]]
+name = "kkcloud-client"
+path = "src/bins/client.rs"
+
+[[bin]]
+name = "kkcloud-server"
+path = "src/bins/server.rs"

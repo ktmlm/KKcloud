@@ -28,3 +28,4 @@ doc:
 	@ cd src/framework && cargo doc --open
 	@ cd src/server && cargo doc --open
 	@ cd src/client && cargo doc --open
+	@ cd src/kkcloud && cargo doc --open

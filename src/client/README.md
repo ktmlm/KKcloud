@@ -1,3 +1,3 @@
 # Client
 
-An official implementation of `TT-client`.
+An official implementation of `KK-client`.

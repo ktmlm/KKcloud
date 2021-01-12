@@ -1,7 +1,7 @@
 //!
-//! # TT
+//! # KK
 //!
-//! **T**o be correct, **T**o be reliable.
+//! **K**eep correct, **K**eep reliable.
 //!
 //! Lightweight private-cloud solution for SME scenarios.
 //!

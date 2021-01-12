@@ -46,7 +46,7 @@ pub type MacAddr = [u8; 6];
 /// Use `u32` as the uint of supported vm-engine-features.
 pub type VmEngineFeat = u32;
 
-/// The base unit of TT,
+/// The base unit of KK,
 /// stands for a complete workspace for client.
 #[derive(Debug, Default)]
 pub struct Env {
@@ -99,7 +99,7 @@ pub struct Vm {
     /// `runtime_image` may not be a regular file path,
     /// such as `ZFS` stroage.
     ///
-    /// E.g. zroot/tt/[VmId](self::Vm::id)
+    /// E.g. zroot/kk/[VmId](self::Vm::id)
     pub runtime_image: String,
     /// Network kind of this VM.
     pub net_kind: NetKind,
@@ -238,15 +238,15 @@ pub trait VmEngine: Send + Sync + Debug + Network + Storage {
     /// Create the VM instance, and update necessary data of the `Vm`.
     fn create_vm(&self, vm: &mut Vm) -> Result<()> {
         self.create_image(vm)
-            .c(e!(ERR_TT_STORAGE_CREATE_IMAGE))
-            .and_then(|_| self.set_net(vm).c(e!(ERR_TT_FIREWALL_SET_NET)))
+            .c(e!(ERR_KK_STORAGE_CREATE_IMAGE))
+            .and_then(|_| self.set_net(vm).c(e!(ERR_KK_NET_SET_NET)))
     }
 
     /// Destroy the VM instance, and update necessary data of the `Vm`.
     fn destroy_vm(&self, vm: &mut Vm) -> Result<()> {
         self.destroy_image(vm)
-            .c(e!(ERR_TT_STORAGE_DESTROY_IMAGE))
-            .and_then(|_| self.unset_net(vm).c(e!(ERR_TT_FIREWALL_UNSET_NET)))
+            .c(e!(ERR_KK_STORAGE_DESTROY_IMAGE))
+            .and_then(|_| self.unset_net(vm).c(e!(ERR_KK_NET_UNSET_NET)))
     }
 
     /// Start a `stopped` VM.
@@ -264,7 +264,7 @@ pub trait VmEngine: Send + Sync + Debug + Network + Storage {
 
     /// Remove a cached config of `Vm`.
     fn rm_meta(&self, vm: &mut Vm, path: &Path) -> Result<()> {
-        fs::remove_file(path).c(e!(ERR_TT_SYS_IO)).map(|_| {
+        fs::remove_file(path).c(e!(ERR_KK_SYS_IO)).map(|_| {
             if let Some(ref p) = vm.latest_meta {
                 if p == path {
                     vm.latest_meta = None;
@@ -289,22 +289,22 @@ pub trait VmEngine: Send + Sync + Debug + Network + Storage {
         life_time: Option<u64>,
     ) -> Result<()> {
         self.stop_vm(vm)
-            .c(e!(ERR_TT_STOP_VM))
+            .c(e!(ERR_KK_STOP_VM))
             .and_then(|_| {
                 self.cache_meta(vm)
-                    .c(e!(ERR_TT_META_CREATE_CACHE))
+                    .c(e!(ERR_KK_META_CREATE_CACHE))
                     .and_then(|meta| {
                         let mut snapshot =
                             Snapshot::newx(name.to_owned(), life_time, meta);
                         <Self as Storage>::create_snapshot(self, vm, &snapshot)
-                            .c(e!(ERR_TT_SNAPSHOT_CREATE))
+                            .c(e!(ERR_KK_SNAPSHOT_CREATE))
                             .map(|path| {
                                 snapshot.path = path;
                                 vm.snapshots.insert(name.to_owned(), snapshot);
                             })
                     })
             })
-            .and_then(|_| self.start_vm(vm).c(e!(ERR_TT_START_VM)))
+            .and_then(|_| self.start_vm(vm).c(e!(ERR_KK_START_VM)))
     }
 
     /// Delete a snapshot of the runtime image:
@@ -314,10 +314,10 @@ pub trait VmEngine: Send + Sync + Debug + Network + Storage {
     fn destroy_snapshot(&self, vm: &mut Vm, name: &str) -> Result<()> {
         vm.snapshots.remove(name).ok_or(eg!()).and_then(|snapshot| {
             <Self as Storage>::destroy_snapshot(self, vm, &snapshot.path)
-                .c(e!(ERR_TT_SNAPSHOT_DESTROY))
+                .c(e!(ERR_KK_SNAPSHOT_DESTROY))
                 .and_then(|_| {
                     self.rm_meta(vm, &snapshot.meta_path)
-                        .c(e!(ERR_TT_META_REMOVE_CACHE))
+                        .c(e!(ERR_KK_META_REMOVE_CACHE))
                 })
         })
     }
@@ -334,13 +334,13 @@ pub trait VmEngine: Send + Sync + Debug + Network + Storage {
                 let snapshot = vm.snapshots.get(name).ok_or(eg!())?;
                 let mut cached_vm = self
                     .gen_vm_from_meta(&snapshot.meta_path)
-                    .c(e!(ERR_TT_META_RESTORE_CACHE))?;
+                    .c(e!(ERR_KK_META_RESTORE_CACHE))?;
                 <Self as Storage>::apply_snapshot(self, &cached_vm, &snapshot)
-                    .c(e!(ERR_TT_SNAPSHOT_APPLY))?;
+                    .c(e!(ERR_KK_SNAPSHOT_APPLY))?;
                 cached_vm.snapshots = mem::take(&mut vm.snapshots);
-                self.update_vm(cached_vm).c(e!(ERR_TT_UPDATE_VM))
+                self.update_vm(cached_vm).c(e!(ERR_KK_UPDATE_VM))
             })
-            .and_then(|_| self.start_vm(vm).c(e!(ERR_TT_START_VM)))
+            .and_then(|_| self.start_vm(vm).c(e!(ERR_KK_START_VM)))
     }
 }
 
