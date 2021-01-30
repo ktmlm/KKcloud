@@ -24,6 +24,9 @@ pub type EnvId = Id;
 /// ID alias for VM.
 pub type VmId = Id;
 
+/// Alias of user name.
+pub type UserId = String;
+
 /// Use `u16` to express a socket port.
 pub type SockPort = u16;
 
@@ -45,6 +48,16 @@ pub type MacAddr = [u8; 6];
 
 /// Use `u32` as the uint of supported vm-engine-features.
 pub type VmFeature = u32;
+
+/// User -> [Env ...] -> [[Vm ...], ...]
+pub struct User {
+    /// Aka "user name".
+    pub id: UserId,
+    /// Optional password for a user.
+    pub passwd: Option<String>,
+    /// All envs belong to this user.
+    pub env_set: HashSet<EnvId>,
+}
 
 /// The base unit of KK,
 /// stands for a complete workspace for client.
