@@ -18,7 +18,7 @@ lazy_static! {
 #[derive(Default)]
 pub struct Service {
     #[allow(missing_docs)]
-    pub user_to_env: Arc<RwLock<HashMap<UserId, User>>>,
+    pub all_user: Arc<RwLock<HashMap<UserId, User>>>,
     #[allow(missing_docs)]
     pub all_env: Arc<RwLock<HashMap<EnvId, Env>>>,
     #[allow(missing_docs)]

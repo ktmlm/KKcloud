@@ -280,8 +280,8 @@ pub trait VmEngine: Send + Sync + Debug + Network + Storage {
     /// Cache all infomations of the 'Vm' to disk.
     fn cache_meta(&self, vm: &Vm) -> Result<PathBuf>;
 
-    /// Remove a cached config of `Vm`.
-    fn rm_meta(&self, vm: &mut Vm, path: &Path) -> Result<()> {
+    /// Remove the cached config of `Vm`.
+    fn clean_meta(&self, vm: &mut Vm, path: &Path) -> Result<()> {
         fs::remove_file(path).c(e!(ERR_KK_SYS_IO)).map(|_| {
             if let Some(ref p) = vm.latest_meta {
                 if p == path {
@@ -292,7 +292,7 @@ pub trait VmEngine: Send + Sync + Debug + Network + Storage {
     }
 
     /// Restruct a `Vm` from a cached config.
-    fn gen_vm_from_meta(&self, path: &Path) -> Result<Vm>;
+    fn restore_from_meta(&self, path: &Path) -> Result<Vm>;
 
     /// Add a snapshot for the runtime image:
     ///
@@ -334,7 +334,7 @@ pub trait VmEngine: Send + Sync + Debug + Network + Storage {
             <Self as Storage>::destroy_snapshot(self, vm, &snapshot.path)
                 .c(e!(ERR_KK_SNAPSHOT_DESTROY))
                 .and_then(|_| {
-                    self.rm_meta(vm, &snapshot.meta_path)
+                    self.clean_meta(vm, &snapshot.meta_path)
                         .c(e!(ERR_KK_META_REMOVE_CACHE))
                 })
         })
@@ -351,7 +351,7 @@ pub trait VmEngine: Send + Sync + Debug + Network + Storage {
             .and_then(|_| {
                 let snapshot = vm.snapshots.get(name).ok_or(eg!())?;
                 let mut cached_vm = self
-                    .gen_vm_from_meta(&snapshot.meta_path)
+                    .restore_from_meta(&snapshot.meta_path)
                     .c(e!(ERR_KK_META_RESTORE_CACHE))?;
                 <Self as Storage>::apply_snapshot(self, &cached_vm, &snapshot)
                     .c(e!(ERR_KK_SNAPSHOT_APPLY))?;
