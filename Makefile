@@ -12,6 +12,10 @@ release:
 lint:
 	@ cargo clippy
 
+test:
+	cargo test --workspace -- --test-threads=1
+	cargo test --lib --workspace -- --test-threads=1
+
 fmt:
 	@ ./tools/fmt.sh
 
