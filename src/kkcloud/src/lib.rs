@@ -5,10 +5,10 @@
 //!
 //! Core components:
 //!
-//! - [**[bin]** kkcloud-client](https://crates.io/crates/kkcloud-client)
-//! - [**[bin]** kkcloud-server](https://crates.io/crates/kkcloud-server)
-//! - [**[lib]** kkcloud-engine](https://crates.io/crates/kkcloud-engine)
-//! - [**[lib]** kkcloud-framework](https://crates.io/crates/kkcloud-framework)
+//! - [**\[bin\]** kkcloud-client](https://crates.io/crates/kkcloud-client)
+//! - [**\[bin\]** kkcloud-server](https://crates.io/crates/kkcloud-server)
+//! - [**\[lib\]** kkcloud-engine](https://crates.io/crates/kkcloud-engine)
+//! - [**\[lib\]** kkcloud-framework](https://crates.io/crates/kkcloud-framework)
 //!
 
 #[cfg(test)]
