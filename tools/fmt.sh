@@ -15,7 +15,15 @@ EXEC_PATH=$(echo ${EXEC_PATH} | sed 's@/\./@/@g' | sed 's@/\.*$@@')
 cd $EXEC_PATH || exit 1
 #################################################
 
-export LC_ALL=en_US.UTF-8 # perl
+OS=$(uname -s)
+if [[ $OS == "Linux" ]]; then
+    CMD="sed -ri"
+elif [[ $OS == "Darwin" || $OS == "FreeBSD" ]]; then
+    CMD="sed -rI"
+else
+    echo -e "\033[31;01mUnsupported platform!\[033[00m"
+    exit 1
+fi
 
 for file in $(find .. -type f \
     -name "*.rs" \
@@ -30,21 +38,21 @@ for file in $(find .. -type f \
     | grep -v 'target/' \
     | grep -v 'postgres'); do
 
-    perl -p -i -e 's/　/ /g' $file
-    perl -p -i -e 's/！/!/g' $file
-    perl -p -i -e 's/（/(/g' $file
-    perl -p -i -e 's/）/)/g' $file
+    $CMD 's/　/ /g' $file
+    $CMD 's/！/!/g' $file
+    $CMD 's/（/(/g' $file
+    $CMD 's/）/)/g' $file
 
-    perl -p -i -e 's/：/: /g' $file
-    perl -p -i -e 's/， */, /g' $file
-    perl -p -i -e 's/。 */. /g' $file
-    perl -p -i -e 's/、 +/、/g' $file
+    $CMD 's/：/: /g' $file
+    $CMD 's/， */, /g' $file
+    $CMD 's/。 */. /g' $file
+    $CMD 's/、 +/、/g' $file
 
-    perl -p -i -e 's/, +/, /g' $file
-    perl -p -i -e 's/\. +/. /g' $file
+    $CMD 's/, +/, /g' $file
+    $CMD 's/\. +/. /g' $file
 
-    perl -p -i -e 's/\t/    /g' $file
-    perl -p -i -e 's/ +$//g' $file
+    $CMD 's/\t/    /g' $file
+    $CMD 's/ +$//g' $file
 done
 
 cargo fmt --all

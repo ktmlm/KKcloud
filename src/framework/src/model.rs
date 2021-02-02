@@ -60,6 +60,24 @@ pub enum VmFeature {
     FlatNetwork,
 }
 
+/// Kind of network.
+#[derive(Debug)]
+#[non_exhaustive]
+pub enum NetKind {
+    /// Like VxLan or Flannel(used in k8s).
+    Flatten,
+    /// Need firewall to do ports-forwarding.
+    Forward,
+    /// An alias of [Forward](self::NetKind::Forward).
+    Nat,
+}
+
+impl Default for NetKind {
+    fn default() -> Self {
+        Self::Nat
+    }
+}
+
 /// User -> [Env ...] -> [[Vm ...], ...]
 pub struct User {
     /// Aka "user name".
@@ -145,21 +163,6 @@ pub struct Vm {
     pub addr: NetAddr,
     /// Features required by this vm.
     pub features: HashSet<VmFeature>,
-}
-
-/// Kind of network.
-#[derive(Debug)]
-pub enum NetKind {
-    /// Like VxLan or Flannel(used in k8s).
-    Flatten,
-    /// Need firewall to do ports-forwarding.
-    Nat,
-}
-
-impl Default for NetKind {
-    fn default() -> Self {
-        Self::Nat
-    }
 }
 
 /// Infomations about the template of VM,
