@@ -46,8 +46,19 @@ pub type IpAddr = [u8; 4];
 /// MAC address of VM.
 pub type MacAddr = [u8; 6];
 
-/// Use `u32` as the uint of supported vm-engine-features.
-pub type VmFeature = u32;
+/// Supported features of vm-engines.
+#[derive(Debug)]
+#[non_exhaustive]
+pub enum VmFeature {
+    /// If snapshot is supported.
+    Snapshot,
+    /// If start/stop(aka pause) is supported.
+    StartStop,
+    /// If [Nat](self::NetKind::Nat) is supported.
+    NatNetwork,
+    /// If [Flatten](self::NetKind::Flatten) is supported.
+    FlatNetwork,
+}
 
 /// User -> [Env ...] -> [[Vm ...], ...]
 pub struct User {
@@ -132,6 +143,8 @@ pub struct Vm {
     /// This has different meanings with the
     /// [ip_addr](self::VmResource::ip_addr) in [VmResource](self::VmResource).
     pub addr: NetAddr,
+    /// Features required by this vm.
+    pub features: HashSet<VmFeature>,
 }
 
 /// Kind of network.
@@ -251,7 +264,7 @@ pub trait VmEngine: Send + Sync + Debug + Network + Storage {
     fn name(&self) -> &str;
 
     /// Check if all features the client wanted can be supported.
-    fn check_feat(&self, feat_wanted: &[VmFeature]) -> Result<bool>;
+    fn check_feat(&self, vm: &Vm) -> Result<bool>;
 
     /// Create the VM instance, and update necessary data of the `Vm`.
     fn create_vm(&self, vm: &mut Vm) -> Result<()> {
