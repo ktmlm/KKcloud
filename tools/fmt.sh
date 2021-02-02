@@ -15,15 +15,7 @@ EXEC_PATH=$(echo ${EXEC_PATH} | sed 's@/\./@/@g' | sed 's@/\.*$@@')
 cd $EXEC_PATH || exit 1
 #################################################
 
-OS=$(uname -s)
-if [[ $OS == "Linux" ]]; then
-    CMD="sed -ri"
-elif [[ $OS == "Darwin" || $OS == "FreeBSD" ]]; then
-    CMD="sed -rI"
-else
-    echo -e "\033[31;01mUnsupported platform!\[033[00m"
-    exit 1
-fi
+tmp_suffix="${RANDOM}la134jflahglakjflajlgal${RANDOM}"
 
 for file in $(find .. -type f \
     -name "*.rs" \
@@ -38,21 +30,23 @@ for file in $(find .. -type f \
     | grep -v 'target/' \
     | grep -v 'postgres'); do
 
-    $CMD 's/　/ /g' $file
-    $CMD 's/！/!/g' $file
-    $CMD 's/（/(/g' $file
-    $CMD 's/）/)/g' $file
+    sed -ri.${tmp_suffix} 's/　/ /g' $file
+    sed -ri.${tmp_suffix} 's/！/!/g' $file
+    sed -ri.${tmp_suffix} 's/（/(/g' $file
+    sed -ri.${tmp_suffix} 's/）/)/g' $file
 
-    $CMD 's/：/: /g' $file
-    $CMD 's/， */, /g' $file
-    $CMD 's/。 */. /g' $file
-    $CMD 's/、 +/、/g' $file
+    sed -ri.${tmp_suffix} 's/：/: /g' $file
+    sed -ri.${tmp_suffix} 's/， */, /g' $file
+    sed -ri.${tmp_suffix} 's/。 */. /g' $file
+    sed -ri.${tmp_suffix} 's/、 +/、/g' $file
 
-    $CMD 's/, +/, /g' $file
-    $CMD 's/\. +/. /g' $file
+    sed -ri.${tmp_suffix} 's/, +/, /g' $file
+    sed -ri.${tmp_suffix} 's/\. +/. /g' $file
 
-    $CMD 's/\t/    /g' $file
-    $CMD 's/ +$//g' $file
+    sed -ri.${tmp_suffix} 's/\t/    /g' $file
+    sed -ri.${tmp_suffix} 's/ +$//g' $file
+
+    rm -f ${file}.${tmp_suffix}
 done
 
 cargo fmt --all
