@@ -4,7 +4,10 @@
 //! This module act as the global controller, all resoures are under its management.
 //!
 
-use crate::model::{Env, EnvId, User, UserId, Vm, VmEngine, VmId, VmTemplate};
+use crate::{
+    err::*,
+    model::{Env, EnvId, User, UserId, Vm, VmEngine, VmId, VmTemplate},
+};
 use lazy_static::lazy_static;
 use parking_lot::RwLock;
 use ruc::{err::*, *};
@@ -61,7 +64,7 @@ impl TemplateMap {
     #[inline(always)]
     pub fn update_safe(&mut self, t: HashMap<String, VmTemplate>) -> Result<()> {
         if self.0.read().keys().any(|k| t.get(k).is_some()) {
-            return Err(eg!());
+            return Err(e!(ERR_KK_CTRL_UPDATE_TEMPLATE).into());
         }
         self.update(t);
         Ok(())
