@@ -180,8 +180,6 @@ pub struct VmTemplate {
     pub memo: Option<String>,
     /// Engines that can use this template, e.g. 'Qemu'.
     pub compatible_engines: HashSet<String>,
-    /// Features that may be used by engines.
-    pub features: HashSet<VmFeature>,
 }
 
 /// Info about the state of VM.
@@ -266,8 +264,11 @@ pub trait VmEngine: Send + Sync + Debug + Network + Storage {
     /// Get the name of engine.
     fn name(&self) -> &str;
 
-    /// Check if all features the client wanted can be supported.
-    fn check_feat(&self, vm: &Vm) -> Result<bool>;
+    /// Check if all wanted features can be supported.
+    fn ok_features(&self, vm: &Vm) -> bool;
+
+    /// Get all features supported by this engine.
+    fn get_features(&self) -> &'static [VmFeature];
 
     /// Create the VM instance, and update necessary data of the `Vm`.
     fn create_vm(&self, vm: &mut Vm) -> Result<()> {
