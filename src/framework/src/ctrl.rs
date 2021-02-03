@@ -1,7 +1,7 @@
 //!
-//! # Resource Master
+//! # Resource Controller
 //!
-//! This module act as the global controller, all resoures are under its management.
+//! All resoures are under this moduler's management.
 //!
 
 use crate::{
@@ -19,12 +19,14 @@ use std::{
 
 lazy_static! {
     /// Global entrypoint.
-    pub static ref SERV: Arc<Service> = Arc::new(Service::default());
+    pub static ref SERV: ServCtrl = Arc::new(Service::default());
     /// Collections of vm-engines, can NOT be changed in runtime.
-    pub static ref ENGINES: EngineMap = pnk!(EngineMap::init(None));
+    pub static ref ENGINE: EngineCtrl = pnk!(EngineCtrl::init(None));
     /// Collections of vm-templates, can be updated in runtime.
-    pub static ref TEMPLATES: TemplateMap = TemplateMap::default();
+    pub static ref TEMPLATE: TemplateCtrl = TemplateCtrl::default();
 }
+
+type ServCtrl = Arc<Service>;
 
 /// Service is a global data collection.
 #[derive(Default)]
@@ -39,18 +41,18 @@ pub struct Service {
 
 /// {Vm Engine Name} => {Vm Engine Object}
 #[derive(Clone)]
-pub struct EngineMap(Arc<HashMap<String, Arc<dyn VmEngine>>>);
+pub struct EngineCtrl(Arc<HashMap<String, Arc<dyn VmEngine>>>);
 
-impl EngineMap {
+impl EngineCtrl {
     /// Caller(user) uses this function to init [ENGINES](self::ENGINES).
-    pub fn init(em: Option<Vec<Arc<dyn VmEngine>>>) -> Option<EngineMap> {
-        static mut EM: Option<EngineMap> = None;
+    pub fn init(em: Option<Vec<Arc<dyn VmEngine>>>) -> Option<EngineCtrl> {
+        static mut EM: Option<EngineCtrl> = None;
 
         unsafe {
             if let Some(e) = EM.as_ref() {
                 Some(e.clone())
             } else if let Some(e) = em {
-                let ret = EngineMap(Arc::new(
+                let ret = EngineCtrl(Arc::new(
                     e.into_iter().map(|ve| (ve.name().to_owned(), ve)).collect(),
                 ));
                 EM = Some(ret.clone());
@@ -62,7 +64,7 @@ impl EngineMap {
     }
 }
 
-impl Deref for EngineMap {
+impl Deref for EngineCtrl {
     type Target = Arc<HashMap<String, Arc<dyn VmEngine>>>;
     fn deref(&self) -> &Self::Target {
         &self.0
@@ -72,9 +74,9 @@ impl Deref for EngineMap {
 /// The container of vm templates,
 /// {Vm Template Name} => {Vm Template Object}
 #[derive(Default)]
-pub struct TemplateMap(Arc<RwLock<HashMap<String, VmTemplate>>>);
+pub struct TemplateCtrl(Arc<RwLock<HashMap<String, VmTemplate>>>);
 
-impl TemplateMap {
+impl TemplateCtrl {
     /// Replace the whole data with a new one.
     #[inline(always)]
     pub fn reinit(&mut self, t: HashMap<String, VmTemplate>) {
@@ -83,26 +85,26 @@ impl TemplateMap {
 
     /// Add all given elements to current data.
     #[inline(always)]
-    pub fn update(&mut self, t: HashMap<String, VmTemplate>) {
+    pub fn add(&mut self, t: HashMap<String, VmTemplate>) {
         let mut ts = self.0.write();
         t.into_iter().for_each(|(k, v)| {
             ts.insert(k, v);
         })
     }
 
-    /// Similar to `update`, but ensure none of existing templetes will be replaced.
+    /// Similar to `add`, but ensure none of existing templetes will be replaced.
     #[inline(always)]
-    pub fn update_safe(&mut self, t: HashMap<String, VmTemplate>) -> Result<()> {
+    pub fn add_safe(&mut self, t: HashMap<String, VmTemplate>) -> Result<()> {
         if self.0.read().keys().any(|k| t.get(k).is_some()) {
             return Err(e!(ERR_KK_CTRL_UPDATE_TEMPLATE).into());
         }
-        self.update(t);
+        self.add(t);
         Ok(())
     }
 
-    /// Remove all given templates from current data.
+    /// Delete all given templates from current data.
     #[inline(always)]
-    pub fn remove(&mut self, t: HashSet<String>) {
+    pub fn del(&mut self, t: HashSet<String>) {
         let mut ts = self.0.write();
         t.iter().for_each(|t| {
             ts.remove(t);
@@ -110,7 +112,7 @@ impl TemplateMap {
     }
 }
 
-impl Deref for TemplateMap {
+impl Deref for TemplateCtrl {
     type Target = Arc<RwLock<HashMap<String, VmTemplate>>>;
     fn deref(&self) -> &Self::Target {
         &self.0

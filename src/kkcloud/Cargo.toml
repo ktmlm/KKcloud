@@ -1,6 +1,6 @@
 [package]
 name = "kkcloud"
-version = "0.0.3"
+version = "0.0.4"
 
 edition = "2018"
 authors = ["FanHui <kt71@qq.com>", "FanHui <fanhui.x@gmail.com>"]
