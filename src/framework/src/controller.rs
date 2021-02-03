@@ -13,6 +13,7 @@ use parking_lot::RwLock;
 use ruc::{err::*, *};
 use std::{
     collections::{HashMap, HashSet},
+    ops::Deref,
     sync::Arc,
 };
 
@@ -20,7 +21,7 @@ lazy_static! {
     /// Global entrypoint.
     pub static ref SERV: Arc<Service> = Arc::new(Service::default());
     /// Collections of vm-engines, can NOT be changed in runtime.
-    pub static ref ENGINES: Arc<EngineMap> = pnk!(init_engines(None));
+    pub static ref ENGINES: EngineMap = pnk!(EngineMap::init(None));
     /// Collections of vm-templates, can be updated in runtime.
     pub static ref TEMPLATES: TemplateMap = TemplateMap::default();
 }
@@ -37,7 +38,36 @@ pub struct Service {
 }
 
 /// {Vm Engine Name} => {Vm Engine Object}
-pub type EngineMap = HashMap<String, Arc<dyn VmEngine>>;
+#[derive(Clone)]
+pub struct EngineMap(Arc<HashMap<String, Arc<dyn VmEngine>>>);
+
+impl EngineMap {
+    /// Caller(user) uses this function to init [ENGINES](self::ENGINES).
+    pub fn init(em: Option<Vec<Arc<dyn VmEngine>>>) -> Option<EngineMap> {
+        static mut EM: Option<EngineMap> = None;
+
+        unsafe {
+            if let Some(e) = EM.as_ref() {
+                Some(e.clone())
+            } else if let Some(e) = em {
+                let ret = EngineMap(Arc::new(
+                    e.into_iter().map(|ve| (ve.name().to_owned(), ve)).collect(),
+                ));
+                EM = Some(ret.clone());
+                Some(ret)
+            } else {
+                None
+            }
+        }
+    }
+}
+
+impl Deref for EngineMap {
+    type Target = Arc<HashMap<String, Arc<dyn VmEngine>>>;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
 
 /// The container of vm templates,
 /// {Vm Template Name} => {Vm Template Object}
@@ -80,19 +110,9 @@ impl TemplateMap {
     }
 }
 
-/// Caller(user) uses this function to init [ENGINES](self::ENGINES).
-pub fn init_engines(em: Option<EngineMap>) -> Option<Arc<EngineMap>> {
-    static mut EM: Option<Arc<EngineMap>> = None;
-
-    unsafe {
-        if let Some(ref e) = EM {
-            Some(Arc::clone(e))
-        } else if let Some(e) = em {
-            let ret = Arc::new(e);
-            EM = Some(Arc::clone(&ret));
-            Some(ret)
-        } else {
-            None
-        }
+impl Deref for TemplateMap {
+    type Target = Arc<RwLock<HashMap<String, VmTemplate>>>;
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
 }
