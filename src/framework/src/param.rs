@@ -5,7 +5,9 @@
 use crate::{
     ctrl::{ENGINE, TEMPLATE},
     err::*,
-    model::{NetAddr, NetKind, Vm, VmFeature, VmResource, VmState, DEFAULT_ID},
+    model::{
+        Hardware, NetAddr, NetKind, Vm, VmFeature, VmResource, VmState, DEFAULT_ID,
+    },
 };
 use ruc::{err::*, *};
 use serde::{Deserialize, Serialize};
@@ -22,15 +24,15 @@ pub struct VmCfg {
     pub template: String,
     /// Network kind of this VM.
     pub net_kind: NetKind,
-    /// Info about the resource of VM.
-    pub resource: VmResource,
+    /// Hardware resource of VM.
+    pub hw: Hardware,
     /// Usually an 'IP' or a 'domain url'.
     ///
     /// Only meaningful from the perspective of the client,
     /// to indicate how to connect to it from the client.
     ///
     /// This has different meanings with the
-    /// [ip_addr](self::VmResource::ip_addr) in [VmResource](self::VmResource).
+    /// [ip_addr](crate::model::VmResource::ip_addr) in [VmResource](crate::model::VmResource).
     pub addr: NetAddr,
     /// Features required by this vm.
     pub features: HashSet<VmFeature>,
@@ -43,7 +45,7 @@ impl From<&Vm> for VmCfg {
             engine: Some(vm.engine.name().to_owned()),
             template: vm.template.name.clone(),
             net_kind: vm.net_kind.clone(),
-            resource: vm.resource.clone(),
+            hw: vm.resource.hw.clone(),
             addr: vm.addr.clone(),
             features: vm.features.clone(),
         }
@@ -74,7 +76,10 @@ impl VmCfg {
             snapshots: map! {},
             latest_meta: None,
             state: VmState::default(),
-            resource: cfg.resource,
+            resource: VmResource {
+                hw: cfg.hw,
+                ..VmResource::default()
+            },
             addr: cfg.addr,
             features: cfg.features,
         })

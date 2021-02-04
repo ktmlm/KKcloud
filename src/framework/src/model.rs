@@ -217,12 +217,8 @@ impl Default for VmState {
 /// Info about the resource of VM.
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct VmResource {
-    /// CPU number
-    pub cpu_num: u16,
-    /// Memory size in MB
-    pub mem_size: u32,
-    /// Disk size in MB
-    pub disk_size: u32,
+    /// Hardware, eg. cpu, mem, disk ...
+    pub hw: Hardware,
     /// Inner IP address, e.g. '[10,0,0,2]',
     /// IP is generated from 'MAC address',
     /// use the last three fields of MAC.
@@ -236,6 +232,17 @@ pub struct VmResource {
     /// If the type of network is [Flatten](self::NetKind::Flatten),
     /// this field should be empty(and be ignored).
     pub port_map: HashMap<InnerSockPort, PubSockPort>,
+}
+
+/// Static resources, eg. cpu, mem.
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+pub struct Hardware {
+    /// CPU number
+    pub cpu_num: u16,
+    /// Memory size in MB
+    pub mem_size: u32,
+    /// Disk size in MB
+    pub disk_size: u32,
 }
 
 /// Snapshot management.

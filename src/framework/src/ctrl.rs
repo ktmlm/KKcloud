@@ -6,7 +6,7 @@
 
 use crate::{
     err::*,
-    model::{Env, EnvId, User, UserId, Vm, VmEngine, VmId, VmTemplate},
+    model::{Env, EnvId, Hardware, User, UserId, Vm, VmEngine, VmId, VmTemplate},
 };
 use lazy_static::lazy_static;
 use parking_lot::RwLock;
@@ -24,6 +24,8 @@ lazy_static! {
     pub static ref ENGINE: EngineCtrl = pnk!(EngineCtrl::init(None));
     /// Collections of vm-templates, can be updated in runtime.
     pub static ref TEMPLATE: TemplateCtrl = TemplateCtrl::default();
+    /// Harewares of the host, can NOT be changed in runtime.
+    pub static ref HARDWARE: HardwareCtrl = pnk!(HardwareCtrl::init(None));
 }
 
 type ServCtrl = Arc<Service>;
@@ -119,6 +121,35 @@ impl TemplateCtrl {
 
 impl Deref for TemplateCtrl {
     type Target = Arc<RwLock<HashMap<String, Arc<VmTemplate>>>>;
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+/// Total resources of the host.
+#[derive(Clone)]
+pub struct HardwareCtrl(Arc<Hardware>);
+
+impl HardwareCtrl {
+    fn init(total: Option<Hardware>) -> Option<HardwareCtrl> {
+        static mut HW: Option<HardwareCtrl> = None;
+
+        unsafe {
+            if let Some(hw) = HW.as_ref() {
+                Some(hw.clone())
+            } else if let Some(hw) = total {
+                let ret = HardwareCtrl(Arc::new(hw));
+                HW = Some(ret.clone());
+                Some(ret)
+            } else {
+                None
+            }
+        }
+    }
+}
+
+impl Deref for HardwareCtrl {
+    type Target = Arc<Hardware>;
     fn deref(&self) -> &Self::Target {
         &self.0
     }
