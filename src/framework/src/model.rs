@@ -6,6 +6,7 @@
 
 use crate::err::*;
 use ruc::{err::*, *};
+use serde::{Deserialize, Serialize};
 use std::{
     collections::{HashMap, HashSet},
     fmt::Debug,
@@ -17,6 +18,10 @@ use std::{
 /// Use `u64` to express an ID,
 /// e.g. [EnvId](self::Env::id), [VmId](self::Vm::id) ...
 pub type Id = u64;
+
+/// Actual id will be alloced from 1,
+/// 0 is the default value when needed.
+pub const DEFAULT_ID: Id = 0;
 
 /// ID alias for ENV.
 pub type EnvId = Id;
@@ -47,7 +52,7 @@ pub type IpAddr = [u8; 4];
 pub type MacAddr = [u8; 6];
 
 /// Supported features of vm-engines.
-#[derive(Debug)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, Deserialize, Serialize)]
 #[non_exhaustive]
 pub enum VmFeature {
     /// If snapshot is supported.
@@ -61,7 +66,7 @@ pub enum VmFeature {
 }
 
 /// Kind of network.
-#[derive(Debug)]
+#[derive(Clone, Debug, Deserialize, Serialize)]
 #[non_exhaustive]
 pub enum NetKind {
     /// Like VxLan or Flannel(used in k8s).
@@ -79,6 +84,7 @@ impl Default for NetKind {
 }
 
 /// User -> [Env ...] -> [[Vm ...], ...]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct User {
     /// Aka "user name".
     pub id: UserId,
@@ -90,7 +96,7 @@ pub struct User {
 
 /// The base unit of KK,
 /// stands for a complete workspace for client.
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Env {
     /// UUID of the ENV
     pub id: Id,
@@ -109,7 +115,7 @@ pub struct Env {
 }
 
 /// Info about the state of ENV.
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct EnvState {
     /// Whether this ENV is stopped.
     pub is_stopped: bool,
@@ -167,7 +173,7 @@ pub struct Vm {
 
 /// Infomations about the template of VM,
 /// or in other word, the base image of VM.
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct VmTemplate {
     /// Globally unique name,
     /// e.g. "github.com/ktmlm/alpine".
@@ -183,7 +189,7 @@ pub struct VmTemplate {
 }
 
 /// Info about the state of VM.
-#[derive(Debug, Default)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct VmState {
     /// Whether has been stopped.
     pub during_stop: bool,
@@ -197,8 +203,19 @@ pub struct VmState {
     pub net_blacklist: HashSet<IpAddr>,
 }
 
+impl Default for VmState {
+    fn default() -> Self {
+        VmState {
+            during_stop: true,
+            keep_image: false,
+            rand_uuid: true,
+            net_blacklist: HashSet::new(),
+        }
+    }
+}
+
 /// Info about the resource of VM.
-#[derive(Debug, Default)]
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
 pub struct VmResource {
     /// CPU number
     pub cpu_num: u16,
@@ -222,7 +239,7 @@ pub struct VmResource {
 }
 
 /// Snapshot management.
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Deserialize, Serialize)]
 pub struct Snapshot {
     /// The name of snapshot.
     pub name: String,

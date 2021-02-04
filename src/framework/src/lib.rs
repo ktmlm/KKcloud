@@ -11,3 +11,4 @@
 pub mod ctrl;
 pub mod err;
 pub mod model;
+pub mod param;

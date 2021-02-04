@@ -74,28 +74,28 @@ impl Deref for EngineCtrl {
 /// The container of vm templates,
 /// {Vm Template Name} => {Vm Template Object}
 #[derive(Default)]
-pub struct TemplateCtrl(Arc<RwLock<HashMap<String, VmTemplate>>>);
+pub struct TemplateCtrl(Arc<RwLock<HashMap<String, Arc<VmTemplate>>>>);
 
 impl TemplateCtrl {
     /// Replace the whole data with a new one.
     #[inline(always)]
     pub fn reinit(&mut self, t: HashMap<String, VmTemplate>) {
-        *self.0.write() = t;
+        *self.write() = t.into_iter().map(|(k, v)| (k, Arc::new(v))).collect();
     }
 
     /// Add all given elements to current data.
     #[inline(always)]
     pub fn add(&mut self, t: HashMap<String, VmTemplate>) {
-        let mut ts = self.0.write();
+        let mut ts = self.write();
         t.into_iter().for_each(|(k, v)| {
-            ts.insert(k, v);
+            ts.insert(k, Arc::new(v));
         })
     }
 
     /// Similar to `add`, but ensure none of existing templetes will be replaced.
     #[inline(always)]
     pub fn add_safe(&mut self, t: HashMap<String, VmTemplate>) -> Result<()> {
-        if self.0.read().keys().any(|k| t.get(k).is_some()) {
+        if self.read().keys().any(|k| t.get(k).is_some()) {
             return Err(e!(ERR_KK_CTRL_UPDATE_TEMPLATE).into());
         }
         self.add(t);
@@ -105,15 +105,20 @@ impl TemplateCtrl {
     /// Delete all given templates from current data.
     #[inline(always)]
     pub fn del(&mut self, t: HashSet<String>) {
-        let mut ts = self.0.write();
+        let mut ts = self.write();
         t.iter().for_each(|t| {
             ts.remove(t);
         })
     }
+
+    /// Get an reference of `VmTemplate` from a given name.
+    pub fn get(&self, name: &str) -> Option<Arc<VmTemplate>> {
+        self.read().get(name).map(|t| Arc::clone(t))
+    }
 }
 
 impl Deref for TemplateCtrl {
-    type Target = Arc<RwLock<HashMap<String, VmTemplate>>>;
+    type Target = Arc<RwLock<HashMap<String, Arc<VmTemplate>>>>;
     fn deref(&self) -> &Self::Target {
         &self.0
     }
