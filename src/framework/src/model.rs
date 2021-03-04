@@ -5,7 +5,7 @@
 //!
 
 use crate::err::*;
-use ruc::{err::*, *};
+use ruc::*;
 use serde::{Deserialize, Serialize};
 use std::{
     collections::{HashMap, HashSet},

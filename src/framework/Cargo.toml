@@ -11,7 +11,7 @@ categories = ["command-line-utilities"]
 homepage = "https://gitee.com/kt10/kkcloud"
 
 [dependencies]
-ruc = { git = "https://gitee.com/kt10/ruc", version = "0.4", branch = "master" }
+ruc = { git = "https://gitee.com/kt10/ruc", branch = "master" }
 
 lazy_static = "1.4.0"
 serde = { version = "1.0.118", features = ["derive"] }

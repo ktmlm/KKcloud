@@ -9,7 +9,7 @@ use crate::{
         Hardware, NetAddr, NetKind, Vm, VmFeature, VmResource, VmState, DEFAULT_ID,
     },
 };
-use ruc::{err::*, *};
+use ruc::*;
 use serde::{Deserialize, Serialize};
 use std::{collections::HashSet, sync::Arc};
 

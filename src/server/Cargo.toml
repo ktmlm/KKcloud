@@ -13,6 +13,6 @@ homepage = "https://gitee.com/kt10/kkcloud"
 [dependencies]
 kkcloud-engine = "0"
 kkcloud-framework = "0"
-ruc = { git = "https://gitee.com/kt10/ruc", version = "0.4", branch = "master" }
+ruc = { git = "https://gitee.com/kt10/ruc", branch = "master" }
 
 [features]

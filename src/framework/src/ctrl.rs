@@ -10,7 +10,7 @@ use crate::{
 };
 use lazy_static::lazy_static;
 use parking_lot::RwLock;
-use ruc::{err::*, *};
+use ruc::*;
 use std::{
     collections::{HashMap, HashSet},
     ops::Deref,
@@ -98,7 +98,7 @@ impl TemplateCtrl {
     #[inline(always)]
     pub fn add_safe(&mut self, t: HashMap<String, VmTemplate>) -> Result<()> {
         if self.read().keys().any(|k| t.get(k).is_some()) {
-            return Err(e!(ERR_KK_CTRL_UPDATE_TEMPLATE).into());
+            return crate::err!(ERR_KK_CTRL_UPDATE_TEMPLATE);
         }
         self.add(t);
         Ok(())

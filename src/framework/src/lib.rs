@@ -9,6 +9,7 @@
 #![warn(missing_docs, unused_import_braces, unused_extern_crates)]
 
 pub mod ctrl;
+#[macro_use]
 pub mod err;
 pub mod model;
 pub mod param;

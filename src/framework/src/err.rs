@@ -6,6 +6,22 @@
 
 #![allow(missing_docs)]
 
+/// Used in error_chain state
+#[macro_export(crate)]
+macro_rules! e {
+    ($err: expr) => {
+        d!(format!("{}({})", stringify!($err), $err))
+    };
+}
+
+/// Used in return state
+#[macro_export(crate)]
+macro_rules! err {
+    ($err: expr) => {
+        Err(eg!(format!("{}({})", stringify!($err), $err)))
+    };
+}
+
 pub const ERR_KK_UNKNOWN: i32 = -1;
 pub const ERR_KK_SYS_IO: i32 = -2;
 
