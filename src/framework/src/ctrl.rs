@@ -98,7 +98,7 @@ impl TemplateCtrl {
     #[inline(always)]
     pub fn add_safe(&mut self, t: HashMap<String, VmTemplate>) -> Result<()> {
         if self.read().keys().any(|k| t.get(k).is_some()) {
-            return crate::err!(ERR_KK_CTRL_UPDATE_TEMPLATE);
+            return crate::fail!(ERR_KK_CTRL_UPDATE_TEMPLATE);
         }
         self.add(t);
         Ok(())

@@ -16,7 +16,7 @@ macro_rules! e {
 
 /// Used in return state
 #[macro_export(crate)]
-macro_rules! err {
+macro_rules! fail {
     ($err: expr) => {
         Err(eg!(format!("{}({})", stringify!($err), $err)))
     };

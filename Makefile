@@ -10,7 +10,8 @@ release:
 	cargo build --release --target=$(TARGET)
 
 lint:
-	@ cargo clippy
+	cargo clippy
+	cargo clippy --tests
 
 test:
 	cargo test --workspace -- --test-threads=1
